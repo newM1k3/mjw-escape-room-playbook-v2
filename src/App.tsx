@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, MapPin } from 'lucide-react';
+import pb from './lib/pocketbase';
 import BusinessContextForm, { BusinessContext } from './components/BusinessContextForm';
 import PlaybookOutput from './components/PlaybookOutput';
 
@@ -19,6 +20,16 @@ export default function App() {
   const [playbook, setPlaybook] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // SSO token handoff from the ImmersiveKit dashboard
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (!token) return;
+    pb.authStore.save(token, null);
+    pb.collection('users').authRefresh().catch(() => pb.authStore.clear());
+    window.history.replaceState({}, '', window.location.pathname);
+  }, []);
 
   const handleGenerate = async () => {
     setIsLoading(true);
