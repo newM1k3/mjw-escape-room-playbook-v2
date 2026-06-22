@@ -45,7 +45,7 @@ The playbook must include:
 6. Top 5 Local SEO Quick Wins (specific to their location and challenge)`;
 
     const message = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{ role: 'user', content: userPrompt }],
       system: systemPrompt,
