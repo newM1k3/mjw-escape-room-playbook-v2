@@ -16,8 +16,24 @@ export const handler: Handler = async (event) => {
   }
 
   try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return {
+        statusCode: 503,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Playbook generation is not configured on this deployment' }),
+      };
+    }
+
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const context = JSON.parse(event.body || '{}');
+
+    if (!context.businessName || !context.location) {
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'businessName and location are required' }),
+      };
+    }
 
     const systemPrompt = `You are an expert marketing strategist specializing in destination escape rooms and immersive entertainment venues. You understand that destination businesses (those not in city centers) face unique challenges: they cannot rely on foot traffic, every customer is intentional, and their SEO must target people planning outings rather than people already nearby.
 
@@ -60,11 +76,12 @@ The playbook must include:
       body: JSON.stringify({ playbook: text }),
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
+    // Log the real error server-side; never echo SDK/internal messages to the client.
+    console.error('Error generating playbook:', err);
     return {
       statusCode: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: message }),
+      body: JSON.stringify({ error: 'Playbook generation failed. Please try again.' }),
     };
   }
 };
