@@ -106,7 +106,7 @@ export default function PlaybookOutput({ playbook, isLoading, businessName }: Pr
           </div>
           <div>
             <span className="text-sm font-semibold text-slate-200">
-              {businessName && playbook ? `${businessName} Playbook` : 'Marketing Playbook'}
+              {businessName && playbook ? `${businessName} Playbook` : 'Playbook'}
             </span>
             {playbook && !isLoading && (
               <span className="ml-2 text-xs text-emerald-400 font-medium">Ready</span>
